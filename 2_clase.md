@@ -104,3 +104,40 @@ Modelo de Grafos Aleatorios
             Diapo 36: Anotar defs.
             Diapo 37: Matriz Q, que se puede observar según el valor de Q. Heterofilio?
 
+    RESUTALDO SOBRE APROXIMACIONES
+
+    Extensiones de SBMs
+        -Degree-corrected SBMs
+        -
+        -
+
+    Random dot product graphs (RDPGs)
+        Conectados: vectores alineados
+        No conectados: vectores ortogonales con prod interno cero
+
+        Conexcion a otros modelos
+
+        Estimacion de las posiciones latentes, cuanto da X_LS??
+        Calcular autovalores y me quedo con los autovectores asociados a los autovalores mas grandes (d mas significativo) -> se explica en diapo 47 (diagonalizacion de la matriz)
+
+        de donde saco d? si el modelo esta bien se deberia observar un 'codo'
+
+        Adjacency Spectral Embedding (ASE)
+
+
+        Diapo 50: notar la ortogonalidad de los embeddings
+            ->Alineacion del vecotr
+            ->Magnitud del vector
+
+        Online change point detection: quiero ver si en algun momento cambió algun puntp
+
+
+
+    Geometry Random Graphs
+        Ventajas y desventajas
+
+        Para lograr lo que queremos: usar geometrías no euclideas
+
+        Curvatura: recordar definicion de circunferencia para este caso
+
+        

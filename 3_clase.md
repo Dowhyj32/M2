@@ -78,4 +78,35 @@ ASSOCIATION NETWORKS
     Digresión: Sparsity y norma l1
         la norma 1 induce esparsidad (estimador Lasso), la ventaja de la norma 1 es que una de las coordenadas se anula
 
-        Graphical Lasso
+        Graphical Lasso (estimo toda la matriz junta)
+
+
+    Covariance selection meets linear regression (mejorar explicación / chequear algoritmo)
+        (estimo la matriz por partes usando combinaciones lineales y me fijo cuales son los nodos que mas aportan)
+
+        (tomo primer fila, hago regresión y me quedo con los pocos más significativos)
+
+        (¿Problemas del método?)
+        (¿VENTAJAS?)
+        Neighborhood-based sparse regression
+            Hago las regresiones de forma independiente
+
+
+        ESTOS MODELOS SON PARA VARIABLES ALEATORIAS GAUSSIANAS
+
+
+
+APRENDIENDO GRAFOS A PARTIR DE OBSERVACIONES DE SEÑALES SUAVES
+
+
+DIAPO 41: Recuerdo el ejemplo de la primer clase, a medida que avanzo la señal es menos suave
+Frecuencia grande -> coeficiente chico
+
+Ahora estamos infiriendo el grafo a partir de la matriz Laplaciana
+
+Aprender un grafo a partir de una señal suave
+
+Formulacion y algoritmo: cuanto importancia le doy a la suavidad y a la esparsidad
+
+Signal smoothness meets edge sparsity (alternativa a usar la Laplaciana)
+

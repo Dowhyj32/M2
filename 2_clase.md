@@ -1,143 +1,150 @@
-¿Para que modelar estadisticamente grafos? 
+# Clase 2 – Modelos Estadísticos de Grafos
 
-¿Como explico kas propiedades que observamos en grafos reales? -> small-worl o distribuciones de grado con ley de potencia
+> Apuntes tomados en clase, complementados con `clase_2.pdf`. Quedan varias preguntas abiertas (anotadas en clase) y un par de secciones incompletas, marcadas explícitamente más abajo para retomar con el material o en la próxima clase.
 
-¿Fenómeno de colas pesadas?
+## Motivación
 
-Vamos a ver de modelos mas sencillos a mas complejos
+- ¿Para qué modelar estadísticamente los grafos?
+- ¿Cómo explicamos las propiedades que observamos en grafos reales? → *small-world*, distribuciones de grado con ley de potencia
+- ¿Fenómeno de colas pesadas?
 
-Modelo de Grafos Aleatorios
-    -Conj de grafos posibles (G)
-    -P_theta distribucion de proba sobre G
-    -theta vector de parametros del modelo
+Vamos a ver modelos, de los más sencillos a los más complejos.
 
-    Especificación del modelo:
-        1. P(.) uniforme en G
-        2. Modelo generativo (small world, preferential attachment, copying models)
-        3. Usado en ciencias sociales o economía (no lo vamos a ver mucho)
-        4. Modelar la tendencia de los nodos a conectarse mediante Variables Latentes (stochastic block models graphons, random dot product graphs)
+---
 
-    Grafos Aleatorios Clásicos
-        Asignamos misma probabilidad a todos los grafos (no-dirigidos)
+## Modelo de Grafos Aleatorios (marco general)
 
-        Erdös-Renyi(-Gilbert): se notará ER(n,p) ->n:nodos; p:proba
-        (Fijo los nodos y sorteo las aristas)
-        la arista (u,v) existe con proba p independiente del resto
+- **G:** conjunto de grafos posibles
+- **$P_\theta$:** distribución de probabilidad sobre $G$
+- **$\theta$:** vector de parámetros del modelo
 
-        #Vecinos = n*p
+### Especificación del modelo
 
-            Propiedades ER(n,p):
-                Distribución: Binomial (pues cada arista es independiente)
-                E{D_i} = p*(n-1)
+1. $P(\cdot)$ uniforme sobre $G$
+2. Modelo generativo (*small world*, *preferential attachment*, *copying models*)
+3. Usado en ciencias sociales o economía (no se ve mucho en el curso)
+4. Modelar la tendencia de los nodos a conectarse mediante **variables latentes** (*stochastic block models*, *graphons*, *random dot product graphs*)
 
-                ¿Hoeffding?
+---
 
-                Transición de fase en la aparición de una componente gigante (a medida que n*p se agranda, quedan menos componentes conexas hasta llegar a un grafo conexo). Se aprecia un cambio de fase (mirar grafico)
+## Grafos Aleatorios Clásicos: Erdős–Rényi(-Gilbert)
 
-                n*p>1 -> tiene componente gigante tamo O(n)
-                n*p<1 -> tienen componentes de tamaño O(log(n))
+Se asigna la misma probabilidad a todos los grafos no dirigidos.
 
+- **ER(n, p)** — n: nodos; p: probabilidad
+- Se fijan los nodos y se sortean las aristas: la arista $(u,v)$ existe con probabilidad $p$, independiente del resto.
+- Número esperado de vecinos: $n \cdot p$
 
-                Algoritmo donde se demuestra esta propiedad
-                activo: A_t
-                inactivo: I_t
-                explorado: E_t
+### Propiedades de ER(n, p)
 
-                Normalmente vamos a buscar que el grafo no quede disconexo
+- **Distribución de grado:** Binomial (cada arista es independiente)
+- $E[D_i] = p(n-1)$
+- > Pregunta abierta (anotada en clase): ¿Hoeffding? (probablemente relacionado con acotar la concentración del grado alrededor de su media)
 
-                Devuelve una cadena de Markov en tiempo continuo (¿Que es? ¿A que se refiere con tiempo continuo (+inf??)?)
+**Transición de fase en la aparición de una componente gigante:** a medida que $n \cdot p$ crece, quedan menos componentes conexas, hasta llegar a un grafo conexo. Se aprecia un cambio de fase (ver gráfico):
 
-                Se puede ver que la cadena converge a una cierta función determinística mas el ruido (Ver como se van escalando los ejes del gráfico)
+- $n \cdot p > 1$ → componente gigante de tamaño $O(n)$
+- $n \cdot p < 1$ → componentes de tamaño $O(\log n)$
 
-                Se llega a una ec. diferencial que tiene sol. exacta y podemos compararla con la simulación. Esto sucede cuando la cantidad de vecinos es mayor a 1
+**Algoritmo que demuestra esta propiedad:**
 
-                Diametro del grafo (distancia maxima entre 2 nodos)
-                Clustering coefficient?? Estos modelos no cumplen con ciertas propiedades de la practica, por que?
+- Estados: activo ($A_t$), inactivo ($I_t$), explorado ($E_t$)
+- Normalmente se busca que el grafo no quede disconexo
+- Da lugar a una cadena de Markov en tiempo continuo
+  - > Pregunta abierta (anotada en clase): ¿qué es exactamente / a qué se refiere con "tiempo continuo"?
+- Se observa que la cadena converge a una función determinística más ruido (revisar cómo escalan los ejes del gráfico)
+- Se llega a una ecuación diferencial con solución exacta, comparable con la simulación — esto sucede cuando la cantidad de vecinos promedio es mayor a 1
 
-            Configuration models (modelos mas realistas)
+**Diámetro del grafo** (distancia máxima entre 2 nodos) y **clustering coefficient**: estos modelos clásicos no cumplen con ciertas propiedades observadas en la práctica.
 
-                Generalizando el modelo ER
-                    Chequear las escalas de los gráficos y ver como decaen (relación con colas pesadas)
+> Pregunta abierta (anotada en clase): ¿por qué ER no reproduce el diámetro chico y el clustering alto que se observan en redes reales? (ver más abajo, modelo Small World, que parece apuntar a esta misma limitación)
 
-                Nos interesa generar grafos con distribución que decae?
-                ER no te genera los graficos que decaen. Vamos a necesitar otra cosa -> CONFIGURATION MODEL
+---
 
-                Idea configuration models: 
-                    secuencia de grados dada 'd'
+## Configuration Models (modelos más realistas)
 
-                ¿Como se genera el grafo? 
-                    -> Matching Algorithm (se usa para análisis): dados nodos con semi-aristas, se sortean al azar y se crea un secuencia de aristas. Y con eso llego al grafo? Como se que es válido ese grafo? EL profe dijo algo sobre la distribucion, a que se refiere?
+Generalizan el modelo ER.
 
-                    Hay ciertas restricciones para ejecutar este algoritmo
+> Nota: revisar las escalas de los gráficos y cómo decaen (relación con colas pesadas).
 
-                    ->Switching Algorithm: 
+Interesa generar grafos con una distribución de grado que decaiga como ley de potencia — ER no genera ese tipo de gráficos, por eso se necesita el **configuration model**.
 
-                Algunos resultados:
-                    1. Transicion de fase en la aparicion de una componente gigante
-                    2. Clustering coefficient se va a 0
-                    3. 
-                    4. 
-   
-    Modelo Small World
-        'seis grados de separación'
+- **Idea:** se fija de antemano una secuencia de grados $d$.
+- **Generación del grafo:**
+  - **Matching Algorithm** (usado para el análisis teórico): dados los nodos con sus semi-aristas ("stubs"), se sortean al azar y se arma la secuencia de aristas.
+    - > Pregunta abierta (anotada en clase): ¿cómo se garantiza que el grafo resultante sea válido (sin auto-loops ni aristas repetidas)? El profesor mencionó algo sobre la distribución resultante — repasar.
+    - Hay ciertas restricciones para poder ejecutar este algoritmo.
+  - **Switching Algorithm** *(pendiente — no quedó registrado el detalle, repasar en el PDF)*
 
-        ¿Cual es la distancia minima entre 2 nodos en la red? Nos vamos a preguntar -> Experimento de Milgram
+**Algunos resultados:**
 
-        Milgram muestra que los caminos ortos existen y en abundancia
-        Las redes tipicamente tienen diametro chico y triangulos
+1. Transición de fase en la aparición de una componente gigante (igual que en ER)
+2. El clustering coefficient tiende a 0
+3. *(pendiente)*
+4. *(pendiente)*
 
-        Diapo 28y29 (Queremos combinar ambos grafos) -> Modelo Watts-Strogatz
+---
 
-        Controla la cantidad de aristas y tiene diametro chico (sin embargo no es lo mas eficiente)
+## Modelo Small World (Watts-Strogatz)
 
-    Modelo de Variables Latentes
-        Los nodos tienen una clase asignada
+"Seis grados de separación."
 
-        Modelos de clases latentes:
-        Modelos de vectores latentes (continuo): 
+¿Cuál es la distancia mínima entre 2 nodos en la red? → **Experimento de Milgram**: muestra que los caminos cortos existen, y en abundancia.
 
-        Ejmplo: Actores que comparten películas, las distintas comunidades de cine las pienso como variables latentes? 
+Las redes reales típicamente tienen diámetro chico **y** muchos triángulos (alto clustering) — algo que el modelo ER no logra combinar (diapo 28 y 29).
 
-        Stochastic Block Models (SBMs): (esto es para generar el grafo o para detectar comunidades?)
-            Nodos separados en clases, y hay una matriz de probabilidades de conexión. Normalmente es mas probabe que te conectes con alguien de tu comunidad
+- **Modelo Watts-Strogatz:** combina una estructura regular (con triángulos) con reconexión aleatoria, para lograr diámetro chico. Controla la cantidad de aristas, aunque no es el método más eficiente.
 
-            Diapo 36: Anotar defs.
-            Diapo 37: Matriz Q, que se puede observar según el valor de Q. Heterofilio?
+---
 
-    RESUTALDO SOBRE APROXIMACIONES
+## Modelo de Variables Latentes
 
-    Extensiones de SBMs
-        -Degree-corrected SBMs
-        -
-        -
+Los nodos tienen una clase asignada.
 
-    Random dot product graphs (RDPGs)
-        Conectados: vectores alineados
-        No conectados: vectores ortogonales con prod interno cero
+- **Modelos de clases latentes** (discretas)
+- **Modelos de vectores latentes** (continuos)
 
-        Conexcion a otros modelos
+> Ejemplo: actores que comparten películas — las distintas comunidades de cine pensadas como variables latentes.
 
-        Estimacion de las posiciones latentes, cuanto da X_LS??
-        Calcular autovalores y me quedo con los autovectores asociados a los autovalores mas grandes (d mas significativo) -> se explica en diapo 47 (diagonalizacion de la matriz)
+### Stochastic Block Models (SBMs)
 
-        de donde saco d? si el modelo esta bien se deberia observar un 'codo'
+Los nodos se separan en clases, y hay una matriz de probabilidades de conexión entre clases. Normalmente es más probable conectarse con alguien de la propia comunidad.
 
-        Adjacency Spectral Embedding (ASE)
+> Pregunta abierta (anotada en clase): ¿el SBM se usa para generar el grafo, para detectar comunidades, o para ambas cosas?
 
+- *(pendiente: anotar las definiciones formales de diapo 36)*
+- **Matriz Q** (diapo 37): según sus valores se puede observar el tipo de estructura — ¿heterofilia?
 
-        Diapo 50: notar la ortogonalidad de los embeddings
-            ->Alineacion del vecotr
-            ->Magnitud del vector
+### Extensiones de SBMs
 
-        Online change point detection: quiero ver si en algun momento cambió algun puntp
+- **Degree-corrected SBMs**
+- *(pendiente — quedaron sin anotar más extensiones, repasar diapositivas)*
 
+---
 
+## Random Dot Product Graphs (RDPGs)
 
-    Geometry Random Graphs
-        Ventajas y desventajas
+- **Conectados:** vectores latentes alineados
+- **No conectados:** vectores ortogonales, producto interno cero
+- *(pendiente: conexión con otros modelos — no quedó registrado)*
 
-        Para lograr lo que queremos: usar geometrías no euclideas
+**Estimación de las posiciones latentes:**
 
-        Curvatura: recordar definicion de circunferencia para este caso
+- Se calculan los autovalores y se toman los autovectores asociados a los autovalores más grandes (los $d$ más significativos) — diapo 47 (diagonalización de la matriz).
+- ¿De dónde sale $d$? Si el modelo está bien especificado, debería observarse un "codo" en el gráfico de autovalores.
+- Esto es el **Adjacency Spectral Embedding (ASE)**.
 
-        
+Diapo 50: notar la ortogonalidad de los embeddings — dos aspectos a considerar:
+
+- Alineación del vector
+- Magnitud del vector
+
+**Aplicación:** *online change point detection* — se quiere detectar si, y en qué momento, cambia el modelo subyacente a lo largo del tiempo.
+
+---
+
+## Geometric Random Graphs
+
+- Ventajas y desventajas *(pendiente: no quedó el detalle)*
+- Para capturar mejor las propiedades deseadas: usar geometrías no euclídeas
+- **Curvatura:** recordar la definición de circunferencia en este contexto (geometría no euclídea)

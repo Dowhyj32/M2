@@ -1,66 +1,99 @@
-Graph Neural Networks (GNNs)
+# Clase 4 – Graph Neural Networks (GNNs)
 
-Intro
-    Algunos ejemplos
+## Intro
 
-Motivación
-EMpirical Risk Minimization (ERM)
+- Algunos ejemplos *(no desarrollado en el apunte)*
 
-    Tenemos: COnj d enetranmiento; clase de funciones (aqui es donde entra GNN); funcion de pérdida (mide la bondad de ajuste)
+## Motivación: Empirical Risk Minimization (ERM)
 
-    Vamos a querer hayar dentro de la flia de funciones la que minimiza la función de pérdida.
+- Tenemos: conjunto de entrenamiento, una clase de funciones (acá es donde entran las GNN), y una función de pérdida (mide la bondad de ajuste).
+- Buscamos, dentro de la familia de funciones, la que minimiza la función de pérdida.
+- ¿Qué es un dato en este contexto?
+  - Un grafo
+  - Señal en los nodos
+  - Atributos en las aristas
 
-    Que es un dato en este caso?    -> Grafo
-                                    -> Señal en los nodos
-                                    -> Atributos en las aristas
+### Representando datos en grafos
 
-    REPRESENTANDO DATOS EN GRAFOS
-        Tomo una decision: le pongo un orden a los nodos y por ende tambien un orden a la señal (es arbitrario)
+- Se toma una decisión: ponerle un orden a los nodos, y por ende también a la señal (es arbitrario).
+- Se busca que la función **no dependa del orden** elegido, y que sea aplicable a grafos de distinto tamaño (poder operar sobre grafos distintos con la misma función).
 
-        Queremos que la funcion NO DEPENDA DEL ORDEN y que sea aplicable a grafos de distinto tamaño (quiero ser capaz de operar)
+## Convoluciones en grafos
 
+- Referencia: Convolutional Neural Networks (CNNs).
+- **CNN:** toma una matriz y genera otra usando la convolución.
+- En señales en tiempo discreto, la cercanía (entre instantes) contiene información.
 
-CONVOLUCIONES EN GRAFOS
+![alt text](image.png)
 
-    CONVOLUTIONAL NEURAL NETWORKS (CNNs)
+- Hace falta un buen orden para que la sucesión sea suave. Como es una serie de tiempo, el grafo que la representa es una línea.
+- Se fija el orden de los nodos → permutaciones → queda definida la matriz $S$ genérica (**Graph Shift Operator**).
+- **Graph convolution:** combinación lineal de versiones desplazadas de la señal (el grafo es el mismo, solo se desplaza la señal hacia la derecha de a un paso; esto se logra multiplicando por un operador).
 
-    (Diapo 11)
+![alt text](image-1.png)
 
-    Graph Convolucion =>  GSP => Graph Filtering (??)
+- $K$ se elige (expande la "máscara" del filtro).
 
-    CNN: toma una matriz y genera otra usando la convolución
+### De información local a global
 
-    Señales en tiempo discreto => Cercanía contiene informacion
+- Se puede operar el mismo filtro en distintos grafos.
 
-    ![alt text](image.png)
+![alt text](image-2.png)
 
-    NECESITO HACER UN BUEN ORDEN PARA QUE LA SUCESION SEA SUAVE 
-    Como es una serie de tiempo, se que el grafo que representa es una linea 
+- En principio, la familia de funciones definida así cumple con lo que se buscaba (independencia del orden, aplicable a grafos de distinto tamaño).
 
-    Fijamos el orden de los nodos => Permutaciones => queda definida la matriz S genérica (Graph Shift Operator)
+> Hasta acá se vieron filtros. Sigue el aprendizaje.
 
-    GRAPH CONVOLUTION: Combinacion lineal de versiones desplazadas de la señal (el grafo es el mismo, solamente muevo el grafo hacia la derecha, se empuja de a 1. eso se logra al multiplicar por un operador)
+## GNN: Construcción
 
-    ![alt text](image-1.png)
+- Esquema: Señal → Filtro → Nueva señal.
+- Aprendiendo usando un **Graph Perceptron**.
+- La salida da un parámetro $H$ (tensor) — se va a querer elegir la cantidad de $h$'s.
+- Ventaja de las GNN: *(sin terminar en el apunte — ver puntos a revisar)*
 
-    K lo elijo yo (exapande la mascara)
+## Múltiples features
 
-    De INformacion Local a Global
-        Puedo operar el mismo filtro en distintos grafos
+*(visto muy rápido en el apunte)*
 
-        ![alt text](image-2.png)
+- En las librerías se habla poco de "convolución"; se habla más de **message passing**.
+- Ambos "son lo mismo".
 
-        En principio la flia de funciones cumple con lo que quería
-    
+## Entrenando una GNN
 
-    HASTA ACA VIMOS FILTROS. SIGUE EL APRENDIZAJE
+- Una vez construida la GNN, se quiere llegar a un vector que represente algo.
+- Aprender ⟺ minimizar la pérdida.
 
-GNN: Construccion
+### Predicción a nivel de nodo
 
-    Señal -> Filtro -> Nueva señal
+- Ejemplo: decidir si un usuario de una red social es un bot.
+- *(pregunta sin terminar en el apunte: "Training? Ocultar o dejar" — ver puntos a revisar)*
 
-    Aprendiendo usando un Graph Perceptron
+### Predicción de aristas
 
-    La salida da un paramámetro H(tensor) (vamos a querer elegir la cantidad de h's)
+*(mencionado como título, sin desarrollo en el apunte)*
 
-    Ventaja GNN: 
+### Clasificar grafos
+
+- Si la identidad de los nodos **no** importa: *(frase incompleta en el apunte — ver puntos a revisar)*
+- Si la identidad de los nodos **sí** importa, una GNN "no es lo mejor".
+
+## Permutation equivariance
+
+*(mencionado como título, sin desarrollo en el apunte)*
+
+## Perturbaciones
+
+- Fourier *(mencionado, sin desarrollo en el apunte)*
+
+---
+
+## ⚠️ Puntos poco claros / a revisar
+
+- "Graph Convolution => GSP => Graph Filtering (??)" — no queda clara la relación entre estos tres conceptos tal como está anotada; el signo de interrogación sugiere que ni en el momento quedó claro.
+- La referencia a "(Diapo 11)" no se entiende sin ver la diapositiva correspondiente.
+- "Ventaja GNN:" quedó sin completar en el apunte.
+- En predicción a nivel de nodo hay ítems vacíos y una frase sin terminar ("Training? Ocultar o dejar") — no se entiende qué se quiso anotar ahí (¿ocultar etiquetas de nodos para entrenar/testear?).
+- "Predicción de aristas" quedó solo como título, sin contenido.
+- En "Clasificar grafos", la frase "Si la identidad de nodos NO importa," quedó incompleta (no se anotó qué pasa en ese caso).
+- "Permutation equivariance" y "Perturbaciones" quedaron como títulos sueltos, prácticamente sin desarrollo (en Perturbaciones solo se anotó la palabra "Fourier").
+- "Sección 11, algoritmo" es una referencia aislada al final del apunte, sin contexto de a qué algoritmo se refiere.

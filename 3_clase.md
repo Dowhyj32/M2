@@ -1,112 +1,91 @@
-Inferencia
+# Clase 3 – Inferencia de grafos
 
-Objetivo: Inferir un grafo a partir de datos
+## Objetivo
 
-¿Como usar GSP para inferir la topología del grafo?
+Inferir un grafo a partir de datos (señales observadas en los nodos). Se busca el grafo que **mejor explica la señal** — ¿cómo usar GSP (Graph Signal Processing) para inferir la topología del grafo?
 
-Inferir el grafo a partir de una señal. Vamos a querer buscar el grafo que mejor explica la señal.
+## Los 3 problemas de inferencia de grafos
 
-HAy 3 problemas: 
-    1. prediccion de enlace (presentado el lunes)
-    2. Association network inference (HOY)
-    3. Tomographic network topology inference
-   
-PREDICCION DE ENLACES
-    Queremos inferir las que no sabemos
+La pregunta general en todos los casos: ¿hay o no hay una arista entre dos nodos? ¿con qué peso?
 
-Association network inference
-    Tenemos señales en los nodos y no conocemos ninguna arista: queremos inferir el grafo completo
+1. **Predicción de enlace** (presentado clase anterior): se conoce parte del grafo y se quieren inferir las aristas que faltan.
+2. **Association network inference** (tema de hoy): se tienen señales en los nodos pero no se conoce ninguna arista — se quiere inferir el grafo completo.
+3. **Tomographic network topology inference**: no se conoce ninguna arista y tampoco se tiene información (de señales).
 
-Tomographic network topology inference
-    No conozco ninguna arista y tampoco tengo informacion
+## Association Networks
 
-¿Hay o no hay una arista? ¿Con que peso?
+**Definición:** los vértices quedan unidos por una arista si hay un nivel suficiente de "asociación" entre los atributos de cada par de vértices.
 
-ASSOCIATION NETWORKS
-    Los vértices están unidos por aristas si hay un nivel suficiente de 'asociación' entre atrinbuots de los pares de vertices
+**Datos:** matriz donde las filas representan los nodos y las columnas la señal $x$ a lo largo del tiempo.
 
-    Matriz: Filas -> representan los nodos
-            Columnas -> señal (x) a lo largo del tiempo
+**Preguntas centrales:**
 
-    ¿El grafo inferido es único? -> Depende de las condiciones 
+- ¿El grafo inferido es único? → depende de las condiciones.
+- ¿Cuántas mediciones hay que hacer del experimento? Se quiere estimar las aristas dado un número de mediciones. Cuanto más larga sea la señal, mejor la estimación.
 
-    ¿Cuantas mediciones hay que hacer del experimento? 
-    Quiero estimar aristas dado un numero de mediciones
+Dados los nodos y la señal, se define una **función de similitud** para medir cuánto se parecen dos señales. Elegir esta función es una de las decisiones centrales del método.
 
-    Cuanto mas larga sea la señal, mejor será la estimación
+### Redes de correlación
 
-    Dados los nodos y la señal, se puede definir una funcion de similitud con la cual podemos ver cuanto se parecen 2 señales
+Idea: si dos nodos están correlacionados, sus señales son similares.
 
+- Se calcula la **correlación** entre cada par de señales temporales.
+- **Grafo de correlación:** se pone una arista entre dos nodos si la correlación es distinta de cero.
+- Association network inference $\iff$ inferencia de correlaciones no nulas.
 
+**Test de hipótesis:** $H_0$ se define como lo que se quiere que pase. Habría que hacer $N^2$ tests de hipótesis, pero por simetría alcanza con $N(N-1)/2$ — de todas formas resulta costoso computacionalmente.
 
-    Hay que tomar ciertas decisiones:
-        
-        -Elección de sim:
-            (Si dos nodos estan correlacionados la señales son similares)
-            
-            Redes de correlacion:
-                Hacemos correlacion entre 2 señales tmeporales
+**Estadísticos usados para el test (cómo se hace la cuenta):**
 
-                Se define un grafo de correlacion -> Si la correlacion es distinta de cero => ponemos una arista entre esos 2 nodos
+- Correlaciones empíricas.
+- **Transformada de Fisher:** lleva la correlación empírica a una variable con distribución (aproximadamente) normal, lo que simplifica controlar la significancia del test.
 
-                Association network inference <=> Inferencia de correlaciones no nulas
+**Testeo múltiple:** al hacer muchos tests de hipótesis a la vez (uno por par de nodos) aparece el problema de testeo múltiple en grafos. Se corrige con **False Discovery Rate (FDR)**.
 
-                ¿TEST DE HIPOTESIS? H_0 lo definis como el que querés que pase
-                N**2 test de hipótesis (malo computacional) (N*(N-1)/2)
+### Correlaciones parciales
 
-                Estadísticos para el test: (COMO HACEMOS LA CUENTA)
-                    -Correlaciones empíricas
-                    -Transformada de fisher => llegamos a algo que tiene una distribución normal (Simple de controlar significancia)
+**Motivación:** correlación no implica causalidad — un par de nodos puede estar correlacionado porque ambos están influenciados por un tercer nodo, no porque estén conectados directamente entre sí. (Para estos problemas los grafos no tienen self-loops.)
 
-                Grafos y testeo múltiple (problema de testeo múltiple)
+Las **correlaciones parciales** capturan mejor la influencia directa entre nodos, descontando el efecto de terceros nodos.
 
-                Corrección: False Discovery Rate (FDR)
-            
-            Correlaciones parciales
-                CORRELACIÓN NO IMPLICA CAUSALIDAD -> un par de nodos puede estar influenciado por un tercer nodo
+**Redes de correlaciones parciales:** se construyen igual que las redes de correlación, pero usando correlación parcial en vez de correlación simple.
 
-                (Para estos problemas los grafos no tiene self-loops)
+## Undirected Gaussian Graphical Models
 
-                Para ello se definen las correlaciones parciales que capturan mejor la influencia directa entre nodos
+*(mencionado como título en el apunte, sin desarrollo — ver puntos a revisar)*
 
-                REDES DE CORRELACIONES PARCIALES
-                    Lo mismo que hicimos antes pero con CORRELACION PARCIAL
+### Digresión: sparsity y norma $\ell_1$
 
-    Undirected Gausian graphical models
+- La norma $\ell_1$ induce **esparsidad** (estimador **Lasso**): una ventaja de esta norma es que hace que algunas coordenadas se anulen exactamente.
+- **Graphical Lasso:** estima toda la matriz (de correlación parcial) en conjunto.
 
+### Covariance selection meets linear regression
 
-    Digresión: Sparsity y norma l1
-        la norma 1 induce esparsidad (estimador Lasso), la ventaja de la norma 1 es que una de las coordenadas se anula
+Objetivo: mejorar la explicación del método / chequear el algoritmo, estimando la matriz por partes usando combinaciones lineales y viendo qué nodos aportan más.
 
-        Graphical Lasso (estimo toda la matriz junta)
+- Método: se toma la primera fila, se hace una regresión, y se conservan los pocos coeficientes más significativos.
+- Preguntas abiertas anotadas en clase: ¿problemas del método? ¿ventajas? *(sin responder en el apunte — ver puntos a revisar)*
 
+**Neighborhood-based sparse regression:** variante en la que las regresiones se hacen de forma independiente (en vez de conjunta).
 
-    Covariance selection meets linear regression (mejorar explicación / chequear algoritmo)
-        (estimo la matriz por partes usando combinaciones lineales y me fijo cuales son los nodos que mas aportan)
+> Estos modelos (Gaussian graphical models, graphical Lasso, covariance selection) son para **variables aleatorias Gaussianas**.
 
-        (tomo primer fila, hago regresión y me quedo con los pocos más significativos)
+## Aprendiendo grafos a partir de observaciones de señales suaves
 
-        (¿Problemas del método?)
-        (¿VENTAJAS?)
-        Neighborhood-based sparse regression
-            Hago las regresiones de forma independiente
+Recordando el ejemplo de la primera clase: a medida que avanza la señal, es menos suave. Frecuencia grande → coeficiente chico.
 
+Ahora se infiere el grafo a partir de la **matriz Laplaciana**: se aprende un grafo a partir de una señal suave.
 
-        ESTOS MODELOS SON PARA VARIABLES ALEATORIAS GAUSSIANAS
+**Formulación y algoritmo:** hay que definir cuánta importancia se le da a la suavidad y cuánta a la esparsidad.
 
+**Signal smoothness meets edge sparsity:** mencionado como alternativa a usar directamente la Laplaciana *(sin más detalle en el apunte)*.
 
+## ⚠️ Puntos poco claros / a revisar
 
-APRENDIENDO GRAFOS A PARTIR DE OBSERVACIONES DE SEÑALES SUAVES
-
-
-DIAPO 41: Recuerdo el ejemplo de la primer clase, a medida que avanzo la señal es menos suave
-Frecuencia grande -> coeficiente chico
-
-Ahora estamos infiriendo el grafo a partir de la matriz Laplaciana
-
-Aprender un grafo a partir de una señal suave
-
-Formulacion y algoritmo: cuanto importancia le doy a la suavidad y a la esparsidad
-
-Signal smoothness meets edge sparsity (alternativa a usar la Laplaciana)
-
+- "$H_0$ se define como lo que se quiere que pase" — la frase tal cual anotada no queda clara; revisar con las diapositivas cómo se elige exactamente la hipótesis nula en este contexto.
+- "Undirected Gaussian Graphical Models" aparece solo como título en el apunte, sin contenido desarrollado.
+- Las preguntas planteadas en clase sobre "Covariance selection meets linear regression" (¿problemas del método?, ¿ventajas?) quedaron sin responder en el apunte.
+- La referencia a "Diapo 41" (ejemplo de la primera clase, señal cada vez menos suave) no queda del todo clara sin ver la diapositiva.
+- "Signal smoothness meets edge sparsity" se menciona como alternativa a usar la Laplaciana, pero sin ningún detalle de en qué consiste.
+- No queda claro cómo se relacionan "Covariance selection meets linear regression" / "Neighborhood-based sparse regression" con el Graphical Lasso mencionado antes (¿son métodos alternativos para el mismo problema, o pasos distintos?).
+- El tercer problema de inferencia, "Tomographic network topology inference", queda solo enunciado (sin aristas conocidas ni información), sin desarrollo posterior en este apunte.
